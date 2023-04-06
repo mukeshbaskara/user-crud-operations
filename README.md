@@ -1,9 +1,8 @@
 # user-crud-operations
 
 
----- setup -----
+#---- setup -----
 
-steps:
 
 --> Create a GKE cluster 
 
@@ -45,7 +44,7 @@ steps:
 
 
 
------ build & push application image to GCR ----
+#----- build & push application image to GCR ----
 
 
 --> Navigate to the app folder and execute the docker commands to build, tag and push to GCR.
@@ -59,7 +58,7 @@ steps:
 
 
 
------- pack the helm chart & install -----
+#------ pack the helm chart & install -----
 
 
 --> Navigate to the folder infra/charts/ and run below commands to pack the chart and install.
@@ -85,7 +84,7 @@ steps:
 
 
 
--------- Python CLI  usage ------
+#-------- Python CLI  usage ------
 
 --> To retrieve the user record
 
@@ -114,7 +113,7 @@ Note-2: I have added validations in user model class. So, app will reject invali
 
 
 
----------------- Improvements -------------
+#---------------- Improvements -------------
 
 
 ---> Need to pass image sha when installing helm chart instead of specifying latest in the image tag in values.yaml (will do it after submission)
