@@ -4,7 +4,7 @@ from pydantic import BaseModel, validator
 
 
 class User(BaseModel):
-    id: str = uuid.uuid4().__str__()
+    id: str = str(uuid.uuid4())
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     gender: Optional[str] = None

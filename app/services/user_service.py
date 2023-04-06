@@ -2,16 +2,13 @@ import requests
 import os
 import yaml
 import io
-
+from redis.exceptions import RedisError, ConnectionError
 from fastapi import HTTPException
 from pydantic import ValidationError
 import logging
 from models.user_model import User
 from repository.redis_client import RedisClient
 
-
-ORDER_SERVICE = os.environ.get('ORDER_SERVICE', '')
-ORDER_NAMESPACE = os.environ.get('ORDER_NAMESPACE', '')
 
 logger = logging.getLogger(__name__)
 
@@ -21,33 +18,50 @@ class UserService:
     def __init__(self):
         self.redis = RedisClient()
 
-    def create_user(self, user: User):
-        print('in user service create user')
-        #self.redis.set(user.id, user.__dict__)
-
     def get_user(self, user_id: str):
         return self.redis.get(user_id)
 
-    def get_orders(self, user_id: str):
-        url = f"http://{ORDER_SERVICE}.{ORDER_NAMESPACE}.svc.cluster.local/order/list/{user_id}"
-        print(url)
-        response = requests.get(url)
-        print(response)
-        if response is not None:
-            return response
-        else:
-            return None
-
     async def create_user_from_yaml(self, file):
-        """
-        Parse YAML data from an uploaded file and insert into redis
-        """
         contents = await file.read()
         yaml_data = yaml.safe_load(io.StringIO(contents.decode('utf-8')))
         try:
             user = User(**yaml_data)
+            result = self.redis.set(user.id, user)
+            if result:
+                return user.id
+            else:
+                raise HTTPException(status_code=500, detail={"Something went wrong, please check with support team"})
         except ValidationError as e:
             error_messages = [f"{error}" for error in e.errors()]
+            logger.error(error_messages)
             raise HTTPException(status_code=400, detail={"error_messages": error_messages})
-        self.redis.set(user.id, user)
+        except (RedisError, ConnectionError) as e:
+            logger.error(f'Error: {e}')
+            raise HTTPException(status_code=500, detail=e)
+
+
+    async def update_user(self, user_id, file):
+        print("in update user service")
+        contents = await file.read()
+        yaml_data = yaml.safe_load(io.StringIO(contents.decode('utf-8')))
+        try:
+            if not self.redis.exists(user_id):
+                return False
+            user = User(**yaml_data)
+            return self.redis.set(user_id, user)
+        except ValidationError as e:
+            error_messages = [f"{error}" for error in e.errors()]
+            logger.error(error_messages)
+            raise HTTPException(status_code=400, detail={"error_messages": error_messages})
+        except (RedisError, ConnectionError) as e:
+            logger.error(f'Error: {e}')
+            raise HTTPException(status_code=500, detail=e)
+
+
+    async def delete_user(self, user_id: str):
+        try:
+            return self.redis.delete(user_id)
+        except (RedisError, ConnectionError) as e:
+            logger.error(f'Error: {e}')
+            raise HTTPException(status_code=500, detail=e)
 

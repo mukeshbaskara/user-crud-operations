@@ -1,49 +1,40 @@
-import json
 import os
-import base64
-
-import requests
 import redis
 import yaml
 
 from models.user_model import User
 
+
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
-REDIS_PORT = os.environ.get('REDIS_PORT', '6378')
+REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
 REDIS_DB = os.environ.get('REDIS_DB', '0')
-REDIS_PASSWORD = os.environ.get('REDIS_PASSWORD', '')
+REDIS_PASSWORD = os.environ.get('REDIS_PASSWORD', 'None')
+REDIS_MAX_CON = os.environ.get('REDIS_MAX_CONNECTIONS', '1000')
 
-#ssl_context = ssl.create_default_context()
 
-#ssl_context.load_verify_locations('/app/cert/redis-ca.pem')
+class RedisConnection:
+    _instance = None
 
-"""
-pool = redis.StrictRedis(
-    host=REDIS_HOST,
-    port=REDIS_PORT,
-    db=REDIS_DB,
-    password=REDIS_PASSWORD,
-    ssl=True,
-    ssl_cert_reqs=ssl.CERT_REQUIRED,
-    ssl_ca_certs='/app/cert/redis-ca.pem')
-"""
-"""
-pool = redis.ConnectionPool(
-    host='10.180.214.116',
-    port=6378,
-    db='test-redis',
-    password='43095071-48a3-40f9-8252-9b4b7c0410b9',
-    ssl=True,
-    ssl_context=ssl_context)
-"""
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.redis_pool = redis.ConnectionPool(
+                host=REDIS_HOST,
+                port=REDIS_PORT,
+                db=REDIS_DB,
+                password=REDIS_PASSWORD,
+                max_connections=int(REDIS_MAX_CON)
+            )
+        return cls._instance
+
+    def get_redis_client(self):
+        return redis.Redis(connection_pool=self.redis_pool)
 
 
 class RedisClient:
 
     def __init__(self):
-        self.conn = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD)
-        #self.conn = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, ssl=True,
-        #                              ssl_cert_reqs="none", ssl_ca_path='/app/cert/redis-ca.pem')
+        self.conn = RedisConnection().get_redis_client()
 
     def get(self, key: str):
         value = self.conn.get(f"user:{key}")
@@ -55,9 +46,13 @@ class RedisClient:
         else:
             return None
 
+    def exists(self, key: str):
+        return self.conn.exists(f"user:{key}")
+
     def set(self, key: str, data: User):
         yaml_string = yaml.dump(data.dict())
-        print(key)
-        print(yaml_string)
-        self.conn.set(f"user:{key}", yaml_string)
+        return self.conn.set(f"user:{key}", yaml_string)
+
+    def delete(self, key: str):
+        return self.conn.delete(f"user:{key}")
 

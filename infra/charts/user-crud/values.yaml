@@ -44,7 +44,7 @@ container:
   port: 8080
 
 redis:
-  host: "10.41.204.59"
+  host: "10.95.178.107"
   port: "6379"
   secret: true
   secretName: "redis-password"
