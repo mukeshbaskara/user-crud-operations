@@ -44,6 +44,12 @@
 
 
 
+
+
+
+
+
+
 #----- build & push application image to GCR ----
 
 
@@ -55,6 +61,10 @@
 			
 			docker push gcr.io/reflecting-surf-381016/user-crud
 		
+
+
+
+
 
 
 
@@ -84,6 +94,10 @@
 
 
 
+
+
+
+
 #-------- Python CLI  usage ------
 
 --> To retrieve the user record
@@ -109,6 +123,10 @@
 Note-1: These commands will print response in JSON.. Need to work on parsing the json and print the content alone..
 
 Note-2: I have added validations in user model class. So, app will reject invalid user details.
+
+
+
+
 
 
 
