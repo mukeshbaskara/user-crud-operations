@@ -33,7 +33,7 @@
 
 		redis.host and redis.port (don't add redis auth/password in the values.yaml for security reasons)
 		
---> Create a static public ip address by navigating to VPC network --> Ip addresses in GCP console
+--> Create a static/public ip address by navigating to VPC network --> Ip addresses in GCP console
 		
 --> Add A record in your DNS manager to map your domain name with the public ip which you created in the previous step.
 
