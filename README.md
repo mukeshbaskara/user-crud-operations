@@ -141,5 +141,6 @@ Note-2: I have added validations in user model class. So, app will reject invali
 
 ---> Need to add frontend application.. This frontend application should face the public traffic and route the requests to our application deployed in private facing..
 
+---> For security in kubernetes, need to add network policy to restrict traffics to and from our pod & also we can add pod security policies like restricting developers from deploying privileged containers..
 
 		
