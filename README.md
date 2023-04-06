@@ -133,14 +133,13 @@ Note-2: I have added validations in user model class. So, app will reject invali
 
 #---------------- Improvements -------------
 
+---> Need to write unit tests 
 
 ---> Need to pass image sha when installing helm chart instead of specifying latest in the image tag in values.yaml (will do it after submission)
 
 ---> Need to add TLS
 
 ---> Need to add frontend application.. This frontend application should face the public traffic and route the requests to our application deployed in private facing..
-
-
 
 
 		
