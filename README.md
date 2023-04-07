@@ -8,9 +8,9 @@
 
 --> Create a redis instance
 
---> Add kube context in your local
+--> Add kube context in your local to access GKE
 
---> Add helm ingress repo to install ingress controller
+--> Add helm ingress repo to install ingress controller in GKE
 
 		helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 		
