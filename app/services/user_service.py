@@ -1,14 +1,11 @@
-import requests
-import os
 import yaml
 import io
+import logging
 from redis.exceptions import RedisError, ConnectionError
 from fastapi import HTTPException
 from pydantic import ValidationError
-import logging
 from models.user_model import User
 from repository.redis_client import RedisClient
-
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +36,7 @@ class UserService:
             logger.error(f'Error: {e}')
             raise HTTPException(status_code=500, detail=e)
 
-
     async def update_user(self, user_id, file):
-        print("in update user service")
         contents = await file.read()
         yaml_data = yaml.safe_load(io.StringIO(contents.decode('utf-8')))
         try:
@@ -57,11 +52,9 @@ class UserService:
             logger.error(f'Error: {e}')
             raise HTTPException(status_code=500, detail=e)
 
-
-    async def delete_user(self, user_id: str):
+    def delete_user(self, user_id: str):
         try:
             return self.redis.delete(user_id)
         except (RedisError, ConnectionError) as e:
             logger.error(f'Error: {e}')
             raise HTTPException(status_code=500, detail=e)
-

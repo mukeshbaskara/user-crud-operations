@@ -44,8 +44,8 @@ async def update_user_from_yaml(user_id: str, file: UploadFile = File(...)):
 
 
 @user_router.delete("/user/{user_id}")
-async def delete_user(user_id: str):
-    result = await service.delete_user(user_id)
+def delete_user(user_id: str):
+    result = service.delete_user(user_id)
     if result == 1:
         return JSONResponse(
             status_code=200,
