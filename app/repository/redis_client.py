@@ -1,9 +1,7 @@
 import os
 import redis
 import yaml
-
 from models.user_model import User
-
 
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
@@ -37,22 +35,25 @@ class RedisClient:
         self.conn = RedisConnection().get_redis_client()
 
     def get(self, key: str):
-        value = self.conn.get(f"user:{key}")
-        if value is not None:
-            try:
-                return User.parse_obj(yaml.safe_load(value))
-            except yaml.YAMLError as e:
-                raise e
-        else:
-            return None
+        with self.conn as conn:
+            value = conn.get(f"user:{key}")
+            if value is not None:
+                try:
+                    return User.parse_obj(yaml.safe_load(value))
+                except yaml.YAMLError as e:
+                    raise e
+            else:
+                return None
 
     def exists(self, key: str):
-        return self.conn.exists(f"user:{key}")
+        with self.conn as conn:
+            return conn.exists(f"user:{key}")
 
     def set(self, key: str, data: User):
         yaml_string = yaml.dump(data.dict())
-        return self.conn.set(f"user:{key}", yaml_string)
+        with self.conn as conn:
+            return conn.set(f"user:{key}", yaml_string)
 
     def delete(self, key: str):
-        return self.conn.delete(f"user:{key}")
-
+        with self.conn as conn:
+            return conn.delete(f"user:{key}")
